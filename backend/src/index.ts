@@ -14,16 +14,22 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/chat', chatRouter);
 
-const PORT = Number(process.env.PORT || 8788);
-// Safe debug: print masked key info once at startup (helps diagnose API_KEY_INVALID)
-const masked = (() => {
-  const k = (process.env.GEMINI_API_KEY || process.env.GOOGLE_GENAI_API_KEY || '').trim();
-  if (!k) return 'absent';
-  return `${k.slice(0,4)}... (len:${k.length})`;
-})();
-// eslint-disable-next-line no-console
-console.log(`[startup] Gemini key: ${masked}`);
-app.listen(PORT, () => {
+// Vercel serverless export
+export default app;
+
+// Local development server (optional, for testing)
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = Number(process.env.PORT || 8788);
+  // Safe debug: print masked key info once at startup (helps diagnose API_KEY_INVALID)
+  const masked = (() => {
+    const k = (process.env.GEMINI_API_KEY || process.env.GOOGLE_GENAI_API_KEY || '').trim();
+    if (!k) return 'absent';
+    return `${k.slice(0,4)}... (len:${k.length})`;
+  })();
   // eslint-disable-next-line no-console
-  console.log(`Backend listening on http://localhost:${PORT}`);
-});
+  console.log(`[startup] Gemini key: ${masked}`);
+  app.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log(`Backend listening on http://localhost:${PORT}`);
+  });
+}
